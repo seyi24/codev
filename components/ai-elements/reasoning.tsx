@@ -197,8 +197,9 @@ export const ReasoningTrigger = memo(
   }
 );
 
-export type ReasoningContentProps = HTMLAttributes<HTMLDivElement> & {
+export type ReasoningContentProps = Omit<HTMLAttributes<HTMLDivElement>, "dir"> & {
   children: string;
+  dir?: "auto" | "ltr" | "rtl";
 };
 
 const streamdownPlugins = { cjk, code, math, mermaid };
@@ -227,7 +228,7 @@ export const ReasoningContent = memo(
           ref={scrollRef}
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          <Streamdown plugins={streamdownPlugins} {...props}>
+          <Streamdown plugins={streamdownPlugins}>
             {children}
           </Streamdown>
         </div>

@@ -3,7 +3,7 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import type { DefaultJWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
 import { DUMMY_PASSWORD } from "@/lib/constants";
-import { createGuestUser, getUser } from "@/lib/db/queries";
+import { createGuestUser, createUser, getUser } from "@/lib/db/queries";
 import { authConfig } from "./auth.config";
 
 export type UserType = "guest" | "regular";
@@ -38,6 +38,7 @@ export const {
 } = NextAuth({
   ...authConfig,
   providers: [
+    ...(authConfig.providers || []),
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
@@ -79,10 +80,14 @@ export const {
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id as string;
         token.type = user.type;
+      }
+      // Handle OAuth sign in
+      if (account && account.provider === "google") {
+        token.type = "regular";
       }
 
       return token;
@@ -94,6 +99,31 @@ export const {
       }
 
       return session;
+    },
+    async signIn({ user, account, profile }) {
+      // Allow credentials provider
+      if (!account) {
+        return true;
+      }
+
+      // Handle OAuth provider (Google)
+      if (account.provider === "google" && profile?.email) {
+        try {
+          const existingUsers = await getUser(profile.email);
+
+          if (existingUsers.length === 0) {
+            // Create new user from Google profile
+            await createUser(profile.email, "");
+          }
+
+          return true;
+        } catch (error) {
+          console.error("Error in signIn callback:", error);
+          return false;
+        }
+      }
+
+      return true;
     },
   },
 });
