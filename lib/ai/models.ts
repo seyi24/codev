@@ -1,4 +1,4 @@
-export const DEFAULT_CHAT_MODEL = "moonshotai/kimi-k2-0905";
+export const DEFAULT_CHAT_MODEL = "openai/gpt-4o-mini";
 
 export const titleModel = {
   id: "mistral/mistral-small",
@@ -24,6 +24,8 @@ export type ChatModel = {
 };
 
 export const chatModels: ChatModel[] = [
+  // Commented out non-OpenAI models
+  /*
   {
     id: "deepseek/deepseek-v3.2",
     name: "DeepSeek V3.2",
@@ -81,6 +83,32 @@ export const chatModels: ChatModel[] = [
     provider: "xai",
     description: "Fast non-reasoning model with tool use",
     gatewayOrder: ["xai"],
+  },
+  */
+  // OpenAI models
+  {
+    id: "openai/gpt-4o",
+    name: "GPT-4o",
+    provider: "openai",
+    description: "OpenAI's most advanced model",
+  },
+  {
+    id: "openai/gpt-4o-mini",
+    name: "GPT-4o Mini",
+    provider: "openai",
+    description: "Fast and cost-effective model",
+  },
+  {
+    id: "openai/gpt-4-turbo",
+    name: "GPT-4 Turbo",
+    provider: "openai",
+    description: "Latest GPT-4 model with improved performance",
+  },
+  {
+    id: "openai/gpt-3.5-turbo",
+    name: "GPT-3.5 Turbo",
+    provider: "openai",
+    description: "Fast and reliable model",
   },
 ];
 
