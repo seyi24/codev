@@ -88,6 +88,13 @@ export const {
       // Handle OAuth sign in
       if (account && account.provider === "google") {
         token.type = "regular";
+        // Get user id from database
+        if (token.email) {
+          const users = await getUser(token.email);
+          if (users.length > 0) {
+            token.id = users[0].id;
+          }
+        }
       }
 
       return token;
