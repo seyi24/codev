@@ -5,7 +5,7 @@ import Link from "next/link";
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
-import { VercelIcon } from "./icons";
+import { Logo } from "@/components/logo";
 import { VisibilitySelector, type VisibilityType } from "./visibility-selector";
 
 function PureChatHeader({
@@ -36,11 +36,9 @@ function PureChatHeader({
 
       <Link
         className="flex size-8 items-center justify-center rounded-lg md:hidden"
-        href="https://vercel.com/templates/next.js/chatbot"
-        rel="noopener noreferrer"
-        target="_blank"
+        href="/"
       >
-        <VercelIcon size={14} />
+        <Logo size={18} />
       </Link>
 
       {!isReadonly && (
