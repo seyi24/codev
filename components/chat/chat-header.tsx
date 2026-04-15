@@ -38,7 +38,7 @@ function PureChatHeader({
         className="flex size-8 items-center justify-center rounded-lg md:hidden"
         href="/"
       >
-        <Logo size={18} />
+        <Logo size={50} />
       </Link>
 
       {!isReadonly && (
