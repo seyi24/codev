@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://chat.vercel.ai"),
   title: "Codev - Your Intelligent Coding Assistant.",
   description: "Codev is a developer chatbot that helps you with your coding questions. It can answer questions about programming languages, frameworks, libraries, and more. It can also help you with debugging, code reviews, and other coding-related tasks.",
+  icons: {
+    icon: '/codev.png',
+  },
 };
 
 export const viewport = {

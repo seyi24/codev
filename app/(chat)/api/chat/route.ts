@@ -41,7 +41,7 @@ import type { DBMessage } from "@/lib/db/schema";
 import { ChatbotError } from "@/lib/errors";
 import { checkIpRateLimit } from "@/lib/ratelimit";
 import type { ChatMessage } from "@/lib/types";
-import { convertToUIMessages, generateUUID } from "@/lib/utils";
+import { convertToUIMessages, generateUUID, getTextFromMessage } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "../../actions";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
 
@@ -53,6 +53,26 @@ function getStreamContext() {
   } catch (_) {
     return null;
   }
+}
+
+function getFallbackChatTitle(message: ChatMessage) {
+  const text = getTextFromMessage(message).trim();
+
+  if (!text) {
+    return "New chat";
+  }
+
+  const normalized = text
+    .replace(/\s+/g, " ")
+    .replace(/[^\w\s]/g, "")
+    .trim();
+  const words = normalized.split(" ").slice(0, 5).join(" ");
+
+  if (!words) {
+    return "New chat";
+  }
+
+  return `${words.charAt(0).toUpperCase()}${words.slice(1)}`;
 }
 
 export async function POST(request: Request) {
@@ -110,7 +130,7 @@ export async function POST(request: Request) {
       await saveChat({
         id,
         userId: session.user.id,
-        title: "New chat",
+        title: getFallbackChatTitle(message),
         visibility: selectedVisibilityType,
       });
       titlePromise = generateTitleFromUserMessage({ message });
