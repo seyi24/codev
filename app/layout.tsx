@@ -7,11 +7,12 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chat.vercel.ai"),
+  metadataBase: new URL("https://codev-by-seyi.vercel.app"),
   title: "Codev - Your Intelligent Coding Assistant.",
   description: "Codev is a developer chatbot that helps you with your coding questions. It can answer questions about programming languages, frameworks, libraries, and more. It can also help you with debugging, code reviews, and other coding-related tasks.",
   icons: {
     icon: '/codev.png',
+    shortcut: '/codev.png',
   },
 };
 
@@ -63,6 +64,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="icon" href="/codev.png" />
+        <link rel="shortcut icon" href="/codev.png" />
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: "Required"
           dangerouslySetInnerHTML={{
