@@ -24,7 +24,9 @@ import { ChatHeader } from "./chat-header";
 import { DataStreamHandler } from "./data-stream-handler";
 import { submitEditedMessage } from "./message-editor";
 import { Messages } from "./messages";
+import { GuestSignupPrompt } from "./guest-signup-prompt";
 import { MultimodalInput } from "./multimodal-input";
+import { UsageIndicator } from "./usage-indicator";
 
 export function ChatShell() {
   const {
@@ -46,6 +48,8 @@ export function ChatShell() {
     setCurrentModelId,
     showCreditCardAlert,
     setShowCreditCardAlert,
+    showGuestSignupPrompt,
+    setShowGuestSignupPrompt,
   } = useActiveChat();
 
   const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(
@@ -107,7 +111,8 @@ export function ChatShell() {
               votes={votes}
             />
 
-            <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
+            <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl flex-col gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
+              {!isReadonly && <UsageIndicator refreshKey={messages.length} />}
               {!isReadonly && (
                 <MultimodalInput
                   attachments={attachments}
@@ -170,6 +175,11 @@ export function ChatShell() {
       </div>
 
       <DataStreamHandler />
+
+      <GuestSignupPrompt
+        onOpenChange={setShowGuestSignupPrompt}
+        open={showGuestSignupPrompt}
+      />
 
       <AlertDialog
         onOpenChange={setShowCreditCardAlert}

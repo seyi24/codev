@@ -11,7 +11,10 @@ import { checkBotId } from "botid/server";
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
 import { auth, type UserType } from "@/app/(auth)/auth";
-import { entitlementsByUserType } from "@/lib/ai/entitlements";
+import {
+  entitlementsByUserType,
+  GUEST_LIFETIME_MESSAGE_LIMIT,
+} from "@/lib/ai/entitlements";
 import {
   allowedModelIds,
   chatModels,
@@ -30,6 +33,7 @@ import {
   createStreamId,
   deleteChatById,
   getChatById,
+  getLifetimeMessageCountByUserId,
   getMessageCountByUserId,
   getMessagesByChatId,
   saveChat,
@@ -106,13 +110,22 @@ export async function POST(request: Request) {
 
     const userType: UserType = session.user.type;
 
-    const messageCount = await getMessageCountByUserId({
-      id: session.user.id,
-      differenceInHours: 1,
-    });
+    if (userType === "guest") {
+      const lifetimeCount = await getLifetimeMessageCountByUserId({
+        id: session.user.id,
+      });
+      if (lifetimeCount >= GUEST_LIFETIME_MESSAGE_LIMIT) {
+        return new ChatbotError("rate_limit:guest").toResponse();
+      }
+    } else {
+      const messageCount = await getMessageCountByUserId({
+        id: session.user.id,
+        differenceInHours: 1,
+      });
 
-    if (messageCount > entitlementsByUserType[userType].maxMessagesPerHour) {
-      return new ChatbotError("rate_limit:chat").toResponse();
+      if (messageCount >= entitlementsByUserType.regular.maxMessagesPerHour) {
+        return new ChatbotError("rate_limit:chat").toResponse();
+      }
     }
 
     const isToolApprovalFlow = Boolean(messages);

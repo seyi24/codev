@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  LogInIcon,
   MessageSquareIcon,
   PanelLeftIcon,
   PenSquareIcon,
@@ -17,6 +18,8 @@ import {
   getChatHistoryPaginationKey,
   SidebarHistory,
 } from "@/components/chat/sidebar-history";
+import { guestRegex } from "@/lib/constants";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { SidebarUserNav } from "@/components/chat/sidebar-user-nav";
 import {
   Sidebar,
@@ -49,6 +52,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
   const { setOpenMobile, toggleSidebar } = useSidebar();
   const { mutate } = useSWRConfig();
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
+  const isGuest = !user || guestRegex.test(user.email ?? "");
 
   const handleDeleteAll = () => {
     setShowDeleteAllDialog(false);
@@ -117,7 +121,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                     <span className="font-medium">New chat</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                {user && (
+                {user && !isGuest && (
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       className="rounded-lg text-sidebar-foreground/40 transition-colors duration-150 hover:bg-destructive/10 hover:text-destructive"
@@ -132,10 +136,10 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          <SidebarHistory user={user} />
+          {isGuest ? <GuestHistoryHint /> : <SidebarHistory user={user} />}
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border pt-2 pb-3">
-          {user && <SidebarUserNav user={user} />}
+          {isGuest ? <GuestFooterCta /> : user && <SidebarUserNav user={user} />}
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
@@ -161,5 +165,50 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </AlertDialogContent>
       </AlertDialog>
     </>
+  );
+}
+
+function GuestHistoryHint() {
+  return (
+    <div className="mx-2 mt-3 rounded-lg border border-dashed border-sidebar-border bg-sidebar-accent/20 p-3 text-[12px] text-sidebar-foreground/70 group-data-[collapsible=icon]:hidden">
+      <p className="font-medium text-sidebar-foreground">
+        Chats aren&apos;t saved yet
+      </p>
+      <p className="mt-1 leading-relaxed text-sidebar-foreground/60">
+        Sign in to save your conversations and continue after your 5 free
+        guest messages.
+      </p>
+    </div>
+  );
+}
+
+function GuestFooterCta() {
+  return (
+    <div className="px-1.5 group-data-[collapsible=icon]:px-0">
+      <div className="mb-2 flex items-center justify-between group-data-[collapsible=icon]:justify-center">
+        <span className="text-[11px] text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden">
+          Appearance
+        </span>
+        <ThemeToggle className="text-sidebar-foreground/70 hover:text-sidebar-foreground" />
+      </div>
+      <Link
+        className="flex h-10 items-center gap-2 rounded-lg bg-red-500 px-3 text-[13px] font-medium text-white transition-colors hover:bg-red-400 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+        href="/register"
+      >
+        <LogInIcon className="size-4 shrink-0" />
+        <span className="group-data-[collapsible=icon]:hidden">
+          Sign up — it&apos;s free
+        </span>
+      </Link>
+      <p className="mt-2 px-1 text-[11px] text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden">
+        Already have an account?{" "}
+        <Link
+          className="text-sidebar-foreground/80 underline-offset-4 hover:underline"
+          href="/login"
+        >
+          Sign in
+        </Link>
+      </p>
+    </div>
   );
 }

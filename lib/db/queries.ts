@@ -62,10 +62,14 @@ export async function createGuestUser() {
   const password = generateHashedPassword(generateUUID());
 
   try {
-    return await db.insert(user).values({ email, password }).returning({
-      id: user.id,
-      email: user.email,
-    });
+    return await db
+      .insert(user)
+      .values({ email, password, isAnonymous: true })
+      .returning({
+        id: user.id,
+        email: user.email,
+        isAnonymous: user.isAnonymous,
+      });
   } catch (_error) {
     throw new ChatbotError(
       "bad_request:database",
@@ -590,6 +594,24 @@ export async function getMessageCountByUserId({
     throw new ChatbotError(
       "bad_request:database",
       "Failed to get message count by user id"
+    );
+  }
+}
+
+export async function getLifetimeMessageCountByUserId({ id }: { id: string }) {
+  try {
+    const [stats] = await db
+      .select({ count: count(message.id) })
+      .from(message)
+      .innerJoin(chat, eq(message.chatId, chat.id))
+      .where(and(eq(chat.userId, id), eq(message.role, "user")))
+      .execute();
+
+    return stats?.count ?? 0;
+  } catch (_error) {
+    throw new ChatbotError(
+      "bad_request:database",
+      "Failed to get lifetime message count by user id"
     );
   }
 }

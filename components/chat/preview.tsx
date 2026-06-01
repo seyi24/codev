@@ -27,7 +27,7 @@ export function Preview() {
             What can I help with?
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Ask a question, write code, or explore ideas.
+            Codev answers and solves software engineering problems.
           </p>
         </div>
 
@@ -51,7 +51,7 @@ export function Preview() {
           onClick={() => handleAction()}
           type="button"
         >
-          Ask anything...
+          Codev: answer or solve software engineering problems...
         </button>
       </div>
     </div>
