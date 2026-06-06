@@ -26,6 +26,9 @@ import { submitEditedMessage } from "./message-editor";
 import { Messages } from "./messages";
 import { GuestSignupPrompt } from "./guest-signup-prompt";
 import { MultimodalInput } from "./multimodal-input";
+import {
+  SpeechProvider,
+} from "./speech-provider";
 import { UsageIndicator } from "./usage-indicator";
 
 export function ChatShell() {
@@ -75,6 +78,7 @@ export function ChatShell() {
 
   return (
     <>
+      <SpeechProvider chatId={chatId}>
       <div className="flex h-dvh w-full flex-row overflow-hidden">
         <div
           className={cn(
@@ -210,6 +214,7 @@ export function ChatShell() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </SpeechProvider>
     </>
   );
 }

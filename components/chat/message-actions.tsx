@@ -1,10 +1,13 @@
 import equal from "fast-deep-equal";
+import { Volume2Icon, VolumeXIcon } from "lucide-react";
 import { memo } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { useCopyToClipboard } from "usehooks-ts";
+import { useSpeech } from "@/components/chat/speech-provider";
 import type { Vote } from "@/lib/db/schema";
 import type { ChatMessage } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import {
   MessageAction as Action,
   MessageActions as Actions,
@@ -26,6 +29,7 @@ export function PureMessageActions({
 }) {
   const { mutate } = useSWRConfig();
   const [_, copyToClipboard] = useCopyToClipboard();
+  const { isSupported, isMessageSpeaking, speakMessage } = useSpeech();
 
   if (isLoading) {
     return null;
@@ -74,7 +78,34 @@ export function PureMessageActions({
   }
 
   return (
-    <Actions className="-ml-0.5 opacity-0 transition-opacity duration-150 group-hover/message:opacity-100">
+    <Actions className="-ml-0.5 opacity-100">
+      {textFromParts && isSupported && (
+        <Action
+          className={cn(
+            "text-muted-foreground/50 hover:text-foreground",
+            isMessageSpeaking(message.id) && "text-primary"
+          )}
+          data-testid="message-speak-button"
+          onClick={() => {
+            if (!textFromParts) {
+              toast.error("There's no text to read aloud!");
+              return;
+            }
+
+            speakMessage(message.id, textFromParts);
+          }}
+          tooltip={
+            isMessageSpeaking(message.id) ? "Stop reading" : "Read aloud"
+          }
+        >
+          {isMessageSpeaking(message.id) ? (
+            <VolumeXIcon className="size-3.5" />
+          ) : (
+            <Volume2Icon className="size-3.5" />
+          )}
+        </Action>
+      )}
+
       <Action
         className="text-muted-foreground/50 hover:text-foreground"
         onClick={handleCopy}

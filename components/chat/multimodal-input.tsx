@@ -52,6 +52,7 @@ import {
   PromptInputTools,
 } from "../ai-elements/prompt-input";
 import { Button } from "../ui/button";
+import { DictateButton } from "./dictate-button";
 import { PaperclipIcon, StopIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
 import {
@@ -522,6 +523,11 @@ function PureMultimodalInput({
             <AttachmentsButton
               fileInputRef={fileInputRef}
               selectedModelId={selectedModelId}
+              status={status}
+            />
+            <DictateButton
+              input={input}
+              setInput={setInput}
               status={status}
             />
             <ModelSelectorCompact
