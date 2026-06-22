@@ -1,4 +1,5 @@
-export const DEFAULT_CHAT_MODEL = "openai/gpt-4o-mini";
+export const AUTO_CHAT_MODEL = "auto";
+export const DEFAULT_CHAT_MODEL = AUTO_CHAT_MODEL;
 
 export const titleModel = {
   id: "mistral/mistral-small",

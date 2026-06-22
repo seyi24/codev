@@ -16,10 +16,11 @@ import {
   GUEST_LIFETIME_MESSAGE_LIMIT,
 } from "@/lib/ai/entitlements";
 import {
-  allowedModelIds,
+  getModelCapabilities,
+  resolveAutoModel,
+} from "@/lib/ai/auto-model";
+import {
   chatModels,
-  DEFAULT_CHAT_MODEL,
-  getCapabilities,
 } from "@/lib/ai/models";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
@@ -90,8 +91,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { id, message, messages, selectedChatModel, selectedVisibilityType } =
-      requestBody;
+    const { id, message, messages, selectedVisibilityType } = requestBody;
 
     const [, session] = await Promise.all([
       checkBotId().catch(() => null),
@@ -101,10 +101,6 @@ export async function POST(request: Request) {
     if (!session?.user) {
       return new ChatbotError("unauthorized:chat").toResponse();
     }
-
-    const chatModel = allowedModelIds.has(selectedChatModel)
-      ? selectedChatModel
-      : DEFAULT_CHAT_MODEL;
 
     await checkIpRateLimit(ipAddress(request));
 
@@ -211,9 +207,17 @@ export async function POST(request: Request) {
       });
     }
 
+    const hasImageAttachments = uiMessages.some((msg) =>
+      msg.parts?.some((part) => part.type === "file")
+    );
+
+    const chatModel = await resolveAutoModel({
+      vision: hasImageAttachments,
+      tools: true,
+    });
+
     const modelConfig = chatModels.find((m) => m.id === chatModel);
-    const modelCapabilities = await getCapabilities();
-    const capabilities = modelCapabilities[chatModel];
+    const capabilities = await getModelCapabilities(chatModel);
     const isReasoningModel = capabilities?.reasoning === true;
     const supportsTools = capabilities?.tools === true;
 
