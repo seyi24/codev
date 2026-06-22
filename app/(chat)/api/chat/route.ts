@@ -239,14 +239,11 @@ export async function POST(request: Request) {
                   "updateDocument",
                   "requestSuggestions",
                 ],
-          providerOptions: {
-            ...(modelConfig?.gatewayOrder && {
-              gateway: { order: modelConfig.gatewayOrder },
-            }),
-            ...(modelConfig?.reasoningEffort && {
+          ...(modelConfig?.reasoningEffort && {
+            providerOptions: {
               openai: { reasoningEffort: modelConfig.reasoningEffort },
-            }),
-          },
+            },
+          }),
           tools: {
             createDocument: createDocument({
               session,

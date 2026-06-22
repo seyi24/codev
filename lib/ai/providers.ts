@@ -1,14 +1,23 @@
-import { customProvider, gateway } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { customProvider } from "ai";
 import { isTestEnvironment } from "../constants";
 import { titleModel } from "./models";
 
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+function toOpenAIModelId(modelId: string): string {
+  return modelId.replace(/^openai\//, "");
+}
+
 export const myProvider = isTestEnvironment
   ? (() => {
-      const { chatModel, titleModel } = require("./models.mock");
+      const { chatModel, titleModel: mockTitleModel } = require("./models.mock");
       return customProvider({
         languageModels: {
           "chat-model": chatModel,
-          "title-model": titleModel,
+          "title-model": mockTitleModel,
         },
       });
     })()
@@ -19,12 +28,12 @@ export function getLanguageModel(modelId: string) {
     return myProvider.languageModel(modelId);
   }
 
-  return gateway.languageModel(modelId);
+  return openai(toOpenAIModelId(modelId));
 }
 
 export function getTitleModel() {
   if (isTestEnvironment && myProvider) {
     return myProvider.languageModel("title-model");
   }
-  return gateway.languageModel(titleModel.id);
+  return openai(toOpenAIModelId(titleModel.id));
 }
