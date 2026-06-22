@@ -1,11 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { suggestions } from "@/lib/constants";
+import { useState } from "react";
 import { Logo } from "@/components/logo";
+import {
+  SUGGESTION_POOL,
+  SUGGESTIONS_DISPLAY_COUNT,
+} from "@/lib/constants";
+import { pickRandomSuggestions } from "@/lib/suggestions";
 
 export function Preview() {
   const router = useRouter();
+  const [displayedSuggestions] = useState(() =>
+    pickRandomSuggestions(SUGGESTION_POOL, SUGGESTIONS_DISPLAY_COUNT)
+  );
 
   const handleAction = (query?: string) => {
     const url = query ? `/?query=${encodeURIComponent(query)}` : "/";
@@ -32,10 +40,10 @@ export function Preview() {
         </div>
 
         <div className="grid w-full max-w-md grid-cols-2 gap-2">
-          {suggestions.map((suggestion) => (
+          {displayedSuggestions.map((suggestion, index) => (
             <button
               className="rounded-xl border border-border/30 bg-card/20 px-3 py-2.5 text-left text-[11px] leading-relaxed text-muted-foreground/70 transition-all duration-200 hover:border-border/60 hover:bg-card/40 hover:text-muted-foreground"
-              key={suggestion}
+              key={`${index}-${suggestion}`}
               onClick={() => handleAction(suggestion)}
               type="button"
             >

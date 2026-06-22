@@ -2,8 +2,12 @@
 
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { motion } from "framer-motion";
-import { memo } from "react";
-import { suggestions } from "@/lib/constants";
+import { memo, useEffect, useState } from "react";
+import {
+  SUGGESTION_POOL,
+  SUGGESTIONS_DISPLAY_COUNT,
+} from "@/lib/constants";
+import { pickRandomSuggestions } from "@/lib/suggestions";
 import type { ChatMessage } from "@/lib/types";
 import { Suggestion } from "../ai-elements/suggestion";
 import type { VisibilityType } from "./visibility-selector";
@@ -15,7 +19,15 @@ type SuggestedActionsProps = {
 };
 
 function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
-  const suggestedActions = suggestions;
+  const [displayedSuggestions, setDisplayedSuggestions] = useState(() =>
+    pickRandomSuggestions(SUGGESTION_POOL, SUGGESTIONS_DISPLAY_COUNT)
+  );
+
+  useEffect(() => {
+    setDisplayedSuggestions(
+      pickRandomSuggestions(SUGGESTION_POOL, SUGGESTIONS_DISPLAY_COUNT)
+    );
+  }, [chatId]);
 
   return (
     <div
@@ -27,13 +39,13 @@ function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
         msOverflowStyle: "none",
       }}
     >
-      {suggestedActions.map((suggestedAction, index) => (
+      {displayedSuggestions.map((suggestedAction, index) => (
         <motion.div
           animate={{ opacity: 1, y: 0 }}
           className="min-w-[200px] shrink-0 sm:min-w-0 sm:shrink"
           exit={{ opacity: 0, y: 16 }}
           initial={{ opacity: 0, y: 16 }}
-          key={suggestedAction}
+          key={`${chatId}-${index}`}
           transition={{
             delay: 0.06 * index,
             duration: 0.4,
